@@ -1,4 +1,4 @@
-package com.example.testandroid;
+package com.uzmap.pkg.uzmodules.UIBarChart.widget;
 
 import java.util.ArrayList;
 
@@ -121,6 +121,10 @@ public class BarChart extends View {
 
 	private ArrayList<Bar> bars = new ArrayList<Bar>();
 	private ArrayList<BarData> barDatas = new ArrayList<BarData>();
+	
+	public ArrayList<BarData> getData(){
+		return barDatas;
+	}
 
 	public BarChart(Context context) {
 		super(context);
@@ -128,7 +132,6 @@ public class BarChart extends View {
 
 	public BarChart(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-
 	}
 
 	public BarChart(Context context, AttributeSet attrs) {
@@ -151,14 +154,10 @@ public class BarChart extends View {
 			init(barDatas);
 			isFirst = false;
 		}
-		
-		Log.i(TAG, "onLayout");
-
 	}
 
 	public void setData(ArrayList<BarData> barDatas) {
 		this.barDatas = barDatas;
-		Log.i(TAG, "setData");
 	}
 
 	public void init(ArrayList<BarData> barData) {
@@ -314,9 +313,8 @@ public class BarChart extends View {
 			 * draw bar background
 			 */
 			// float ratio = getHeight() / maxValue;
-			// Rect barBgRect = new Rect(tmp.left + moveOffset, (int) (ratio * minValue) + xAxisHeight, tmp.right + moveOffset, tmp.bottom);
-			
 			Rect barBgRect = new Rect(tmp.left + moveOffset, 0, tmp.right + moveOffset, tmp.bottom);
+
 			canvas.drawRect(barBgRect, barBgPaint);
 
 			Rect barRect = new Rect(tmp.left + moveOffset, tmp.top, tmp.right + moveOffset, tmp.bottom);
@@ -342,6 +340,10 @@ public class BarChart extends View {
 	private int moveX;
 
 	private int downIndex;
+	
+	
+	private boolean isLeftMost;
+	private boolean isRightMost;
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
@@ -353,14 +355,29 @@ public class BarChart extends View {
 			downIndex = checkClickRect((int) event.getX(), (int) event.getY());
 			break;
 		case MotionEvent.ACTION_MOVE:
+			
+			Bar firstBar = bars.get(0);
+			Bar lastBar = bars.get(bars.size() - 1);
 
-			if (checkIfCanMove(bars)) {
+			if (firstBar.left + moveOffset <= firstBar.left && lastBar.right + moveOffset >= getWidth()) {
 				invalidate();
+				moveOffset = (int) (event.getX() - downX);
+				moveOffset += moveX;
+				
+				isLeftMost = false;
+				isRightMost = false;
+				
+				if (firstBar.left + moveOffset > firstBar.left) {
+					moveOffset = 0;
+					isLeftMost = true;
+				}
+				
+				if (lastBar.right + moveOffset < getWidth()) {
+					moveOffset = getWidth() - lastBar.right;
+					isRightMost = true;
+				}
 			}
-
-			moveOffset = (int) (event.getX() - downX);
-			moveOffset += moveX;
-
+			
 			break;
 		case MotionEvent.ACTION_UP:
 			moveX = moveOffset;
@@ -368,6 +385,14 @@ public class BarChart extends View {
 			int index = checkClickRect((int) event.getX(), (int) event.getY());
 			if (downIndex > 0 && index > 0 && downIndex == index && mOnBarSelectedListener != null) {
 				mOnBarSelectedListener.onBarSelected(index, barDatas.get(index).yValue);
+			}
+			
+			if(isLeftMost && mOnMoveDetectListener != null){
+				mOnMoveDetectListener.onMoveLeftMost();
+			}
+			
+			if(isRightMost && mOnMoveDetectListener != null){
+				mOnMoveDetectListener.onMoveRightMost();
 			}
 			break;
 		}
@@ -398,16 +423,25 @@ public class BarChart extends View {
 
 		Bar firstBar = bars.get(0);
 		Bar lastBar = bars.get(size - 1);
+		
+		if (firstBar.left + moveOffset >= firstBar.left) {
+			moveOffset = 0;
+			
+			if(mOnMoveDetectListener != null) {
+				//mOnMoveDetectListener.onMoveLeftMost();
+			}
+		}
+
+		if (lastBar.right + moveOffset <= getWidth()) {
+			moveOffset = getWidth() - lastBar.right;
+			
+			if(mOnMoveDetectListener != null) {
+				//mOnMoveDetectListener.onMoveRightMost();
+			}
+		}
 
 		if (firstBar.left + moveOffset < firstBar.left && lastBar.right + moveOffset > getWidth()) {
-
-			if (firstBar.left + moveOffset >= firstBar.left) {
-				moveOffset = 0;
-			}
-
-			if (lastBar.right + moveOffset <= getWidth()) {
-				moveOffset = getWidth() - lastBar.right;
-			}
+			
 			return true;
 		}
 
@@ -433,6 +467,18 @@ public class BarChart extends View {
 
 	public void setOnBarSelectedListener(OnBarSelectedListener mOnBarSelectedListener) {
 		this.mOnBarSelectedListener = mOnBarSelectedListener;
+	}
+	
+	
+	public interface OnMoveDetectListener {
+		public void onMoveLeftMost();
+		public void onMoveRightMost();
+	}
+	
+	private OnMoveDetectListener mOnMoveDetectListener;
+	
+	public void setOnMoveDetectListener(OnMoveDetectListener mOnMoveDetectListener){
+		this.mOnMoveDetectListener = mOnMoveDetectListener;
 	}
 
 }
