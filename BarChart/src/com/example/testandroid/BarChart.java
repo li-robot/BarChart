@@ -1,4 +1,4 @@
-package com.uzmap.pkg.uzmodules.UIBarChart.widget;
+package com.example.testandroid;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,6 @@ import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -159,6 +158,18 @@ public class BarChart extends View {
 	public void setData(ArrayList<BarData> barDatas) {
 		this.barDatas = barDatas;
 	}
+	
+	public void updataData(ArrayList<BarData> barDatas){
+		
+		this.barDatas.clear();
+		this.bars.clear();
+		
+		this.barDatas = barDatas;
+		init(this.barDatas);
+		
+		invalidate();
+		
+	}
 
 	public void init(ArrayList<BarData> barData) {
 
@@ -179,7 +190,6 @@ public class BarChart extends View {
 		}
 		
 		this.invalidate();
-
 	}
 
 	@Override
