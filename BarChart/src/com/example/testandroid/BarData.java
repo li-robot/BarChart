@@ -1,4 +1,4 @@
-package com.example.testandroid;
+package com.uzmap.pkg.uzmodules.UIBarChart.widget;
 
 public class BarData {
 	
@@ -8,6 +8,10 @@ public class BarData {
 	public BarData(String xVal, int yVal){
 		this.xValue = xVal;
 		this.yValue = yVal;
+	}
+	
+	public BarData(){
+		// NO-OP
 	}
 	
 }

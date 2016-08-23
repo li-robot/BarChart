@@ -1,4 +1,4 @@
-package com.example.testandroid;
+package com.uzmap.pkg.uzmodules.UIBarChart.widget;
 
 public class Bar {
 	
