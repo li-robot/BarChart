@@ -16,6 +16,7 @@ import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -210,7 +211,7 @@ public class BarChart extends View {
 
 		for (int i = 0; i < barData.size(); i++) {
 
-			float barHeightF = getHeight() / maxValue * barData.get(i).yValue;
+			float barHeightF = (float)getHeight() / (float)maxValue * (float)(barData.get(i).yValue);
 
 			int barHeight = (int) barHeightF;
 			int bottomY = getHeight() - xAxisHeight;
@@ -328,7 +329,10 @@ public class BarChart extends View {
 
 		for (int i = 0; i <= labelCount; i++) {
 
-			float barHeightF = getHeight() / maxValue * stepValue;
+			float barHeightF = (float)getHeight() / (float)maxValue * (float)stepValue;
+			
+			Log.i(TAG, " ====> barHeightF " + barHeightF);
+			
 			int top = getHeight() - (int) barHeightF - xAxisHeight
 					+ getHeight() / maxValue * minValue;
 
